@@ -7,9 +7,12 @@
 //-----------------------------------------------------------------------
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace NJsonSchema.Validation
@@ -33,7 +36,7 @@ namespace NJsonSchema.Validation
         /// <returns>The list of validation errors. </returns>
         public virtual List<ValidationError> Validate(JToken token, string propertyName, string propertyPath)
         {
-            var errors = new List<ValidationError>();
+            var errors = new ConcurrentBag<ValidationError>();
 
             ValidateAnyOf(token, propertyName, propertyPath, errors);
             ValidateAllOf(token, propertyName, propertyPath, errors);
@@ -43,12 +46,12 @@ namespace NJsonSchema.Validation
             ValidateEnum(token, propertyName, propertyPath, errors);
             ValidateProperties(token, propertyName, propertyPath, errors);
 
-            return errors;
+            return errors.ToList();
         }
 
-        private void ValidateType(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateType(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
-            var types = GetTypes().ToDictionary(t => t, t => new List<ValidationError>());
+            var types = GetTypes().ToDictionary(t => t, t => new ConcurrentBag<ValidationError>());
             if (types.Count > 0)
             {
                 foreach (var type in types)
@@ -64,7 +67,10 @@ namespace NJsonSchema.Validation
 
                 // just one has to validate when multiple types are defined
                 if (types.All(t => t.Value.Count > 0))
-                    errors.AddRange(types.SelectMany(t => t.Value));
+                {
+                    foreach (var error in types.SelectMany(t => t.Value))
+                        errors.Add(error);
+                }
             }
             else
             {
@@ -86,7 +92,7 @@ namespace NJsonSchema.Validation
                 .Where(t => t != JsonObjectType.None && _schema.Type.HasFlag(t));
         }
 
-        private void ValidateAnyOf(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateAnyOf(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.AnyOf.Count > 0)
             {
@@ -96,7 +102,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateAllOf(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateAllOf(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.AllOf.Count > 0)
             {
@@ -106,7 +112,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateOneOf(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateOneOf(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.OneOf.Count > 0)
             {
@@ -116,7 +122,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateNot(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateNot(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.Not != null)
             {
@@ -125,7 +131,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateNull(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateNull(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (type.HasFlag(JsonObjectType.Null))
             {
@@ -134,13 +140,13 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateEnum(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateEnum(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.Enumeration.Count > 0 && _schema.Enumeration.All(v => v.ToString() != token.ToString()))
                 errors.Add(new ValidationError(ValidationErrorKind.NotInEnumeration, propertyName, propertyPath));
         }
 
-        private void ValidateString(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateString(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             var isString = token.Type == JTokenType.String || token.Type == JTokenType.Date ||
                            token.Type == JTokenType.Guid || token.Type == JTokenType.TimeSpan ||
@@ -239,7 +245,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateNumber(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateNumber(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (type.HasFlag(JsonObjectType.Number))
             {
@@ -262,7 +268,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateInteger(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateInteger(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (type.HasFlag(JsonObjectType.Integer))
             {
@@ -271,7 +277,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateBoolean(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateBoolean(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (type.HasFlag(JsonObjectType.Boolean))
             {
@@ -280,7 +286,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateObject(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateObject(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (type.HasFlag(JsonObjectType.Object))
             {
@@ -290,7 +296,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateProperties(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateProperties(JToken token, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             var obj = token as JObject;
             foreach (var propertyInfo in _schema.Properties)
@@ -302,7 +308,8 @@ namespace NJsonSchema.Validation
                 {
                     var propertyValidator = new JsonSchemaValidator(propertyInfo.Value);
                     var propertyErrors = propertyValidator.Validate(property.Value, propertyInfo.Key, newPropertyPath);
-                    errors.AddRange(propertyErrors);
+                    foreach (var error in propertyErrors)
+                        errors.Add(error);
                 }
                 else if (propertyInfo.Value.IsRequired)
                     errors.Add(new ValidationError(ValidationErrorKind.PropertyRequired, propertyInfo.Key, newPropertyPath));
@@ -322,19 +329,19 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateMaxProperties(IList<JProperty> properties, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateMaxProperties(IList<JProperty> properties, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.MaxProperties > 0 && properties.Count() > _schema.MaxProperties)
                 errors.Add(new ValidationError(ValidationErrorKind.TooManyProperties, propertyName, propertyPath));
         }
 
-        private void ValidateMinProperties(IList<JProperty> properties, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateMinProperties(IList<JProperty> properties, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.MinProperties > 0 && properties.Count() < _schema.MinProperties)
                 errors.Add(new ValidationError(ValidationErrorKind.TooFewProperties, propertyName, propertyPath));
         }
 
-        private void ValidatePatternProperties(List<JProperty> additionalProperties, List<ValidationError> errors)
+        private void ValidatePatternProperties(List<JProperty> additionalProperties, ConcurrentBag<ValidationError> errors)
         {
             foreach (var property in additionalProperties.ToArray())
             {
@@ -353,7 +360,7 @@ namespace NJsonSchema.Validation
         }
 
         private void ValidateAdditionalProperties(List<JProperty> additionalProperties,
-            string propertyName, string propertyPath, List<ValidationError> errors)
+            string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.AdditionalPropertiesSchema != null)
             {
@@ -378,7 +385,7 @@ namespace NJsonSchema.Validation
             }
         }
 
-        private void ValidateArray(JToken token, JsonObjectType type, string propertyName, string propertyPath, List<ValidationError> errors)
+        private void ValidateArray(JToken token, JsonObjectType type, string propertyName, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             var array = token as JArray;
             if (array != null)
@@ -393,10 +400,9 @@ namespace NJsonSchema.Validation
                     errors.Add(new ValidationError(ValidationErrorKind.ItemsNotUnique, propertyName, propertyPath));
 
                 var itemValidator = _schema.Item != null ? new JsonSchemaValidator(_schema.Item) : null;
-                for (var index = 0; index < array.Count; index++)
-                {
-                    var item = array[index];
 
+                ParallelUtilities.ForEach(array, (item, state, index) =>
+                {
                     var propertyIndex = string.Format("[{0}]", index);
                     var itemPath = !string.IsNullOrEmpty(propertyPath) ? propertyPath + propertyIndex : propertyIndex;
 
@@ -407,14 +413,14 @@ namespace NJsonSchema.Validation
                             errors.Add(error);
                     }
 
-                    ValidateAdditionalItems(item, index, propertyPath, errors);
-                }
+                    ValidateAdditionalItems(item, (int)index, propertyPath, errors);
+                });
             }
             else if (type.HasFlag(JsonObjectType.Array))
                 errors.Add(new ValidationError(ValidationErrorKind.ArrayExpected, propertyName, propertyPath));
         }
 
-        private void ValidateAdditionalItems(JToken item, int index, string propertyPath, List<ValidationError> errors)
+        private void ValidateAdditionalItems(JToken item, int index, string propertyPath, ConcurrentBag<ValidationError> errors)
         {
             if (_schema.Items.Count > 0)
             {
@@ -463,6 +469,24 @@ namespace NJsonSchema.Validation
             errorDictionary.Add(schema, errors);
 
             return new ChildSchemaValidationError(errorKind, property, path, errorDictionary);
+        }
+    }
+
+    internal static class ParallelUtilities
+    {
+        public static void ForEach<T>(IList<T> items, Action<T, object, long> action)
+        {
+            var tasks = new List<Task>();
+            for (var index = 0; index < items.Count; index++)
+            {
+                var item = items[index];
+                var indexCopy = index;
+
+                var task = Task.Factory.StartNew(() => action(item, null, indexCopy), CancellationToken.None,
+                    TaskCreationOptions.None, TaskScheduler.Default);
+                tasks.Add(task);
+            }
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }
