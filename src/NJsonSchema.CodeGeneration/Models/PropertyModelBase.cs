@@ -51,7 +51,7 @@ namespace NJsonSchema.CodeGeneration.Models
             if (_settings.PropertyNameGenerator != null)
                 return _settings.PropertyNameGenerator.Generate(_property);
 
-            return _property.Name;
+            return _property.Name.Replace("@odata.context", "ODataContext");
         }
 
         /// <summary>Gets the type name hint for the property.</summary>

@@ -84,6 +84,7 @@ namespace NJsonSchema.CodeGeneration.CSharp
             var model = new ClassTemplateModel(typeName, Settings, _resolver, _schema);
 
             RenamePropertyWithSameNameAsClass(typeName, model.Properties);
+            RenamePropertyWithInvalidName(model.Properties);
 
             var template = Settings.TemplateFactory.CreateTemplate("CSharp", "Class", model);
             return new TypeGeneratorResult
@@ -103,6 +104,15 @@ namespace NJsonSchema.CodeGeneration.CSharp
                 while (properties.Any(p => p.PropertyName == typeName + number))
                     number++;
                 propertyWithSameNameAsClass.PropertyName = propertyWithSameNameAsClass.PropertyName + number;
+            }
+        }
+
+        private void RenamePropertyWithInvalidName(IEnumerable<PropertyModel> properties)
+        {
+            foreach (var property in properties)
+            {
+                property.PropertyName = property.PropertyName.Replace("@odata.context", "ODataContext");
+                //property.FieldName = property.FieldName.Replace("@odata.context", "ODataContext");
             }
         }
 
