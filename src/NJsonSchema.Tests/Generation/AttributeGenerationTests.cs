@@ -7,6 +7,8 @@ namespace NJsonSchema.Tests.Generation
     [TestClass]
     public class AttributeGenerationTests
     {
+#if !LEGACY
+
         [TestMethod]
         public void When_minLength_and_maxLength_attribute_are_set_on_array_then_minItems_and_maxItems_are_set()
         {
@@ -35,6 +37,8 @@ namespace NJsonSchema.Tests.Generation
             Assert.AreEqual(5, property.MaxLength);
         }
 
+#endif
+
         [TestMethod]
         public void When_Range_attribute_is_set_on_double_then_minimum_and_maximum_are_set()
         {
@@ -45,8 +49,22 @@ namespace NJsonSchema.Tests.Generation
             var property = schema.Properties["Double"];
 
             //// Assert
-            Assert.AreEqual(5, property.Minimum);
-            Assert.AreEqual(10, property.Maximum);
+            Assert.AreEqual(5.5m, property.Minimum);
+            Assert.AreEqual(10.5m, property.Maximum);
+        }
+
+        [TestMethod]
+        public void When_Range_attribute_has_double_max_then_max_is_not_set()
+        {
+            //// Arrange
+
+            //// Act
+            var schema = JsonSchema4.FromType<AttributeTestClass>();
+            var property = schema.Properties["DoubleOnlyMin"];
+
+            //// Assert
+            Assert.AreEqual(5.5m, property.Minimum);
+            Assert.AreEqual(null, property.Maximum);
         }
 
         [TestMethod]
@@ -137,16 +155,23 @@ namespace NJsonSchema.Tests.Generation
 
         public class AttributeTestClass
         {
+#if !LEGACY
             [MinLength(3)]
             [MaxLength(5)]
+#endif
             public string[] Items { get; set; }
 
+#if !LEGACY
             [MinLength(3)]
             [MaxLength(5)]
+#endif
             public string String { get; set; }
 
-            [Range(5, 10)]
+            [Range(5.5, 10.5)]
             public double Double { get; set; }
+
+            [Range(5.5, double.MaxValue)]
+            public double DoubleOnlyMin { get; set; }
 
             [Range(5, 10)]
             public int Integer { get; set; }

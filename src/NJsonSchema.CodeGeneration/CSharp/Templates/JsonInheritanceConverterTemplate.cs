@@ -25,36 +25,49 @@ namespace NJsonSchema.CodeGeneration.CSharp.Templates
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("internal class JsonInheritanceConverter : JsonConverter\r\n{\r\n    internal static r" +
-                    "eadonly string DefaultDiscriminatorName = \"discriminator\";\r\n\r\n    private readon" +
-                    "ly string _discriminator;\r\n\r\n    public JsonInheritanceConverter()\r\n    {\r\n     " +
-                    "   _discriminator = DefaultDiscriminatorName;\r\n    }\r\n\r\n    public JsonInheritan" +
-                    "ceConverter(string discriminator)\r\n    {\r\n        _discriminator = discriminator" +
-                    ";\r\n    }\r\n\r\n    public override bool CanWrite => true;\r\n\r\n    public override vo" +
-                    "id WriteJson(JsonWriter writer, object value, JsonSerializer serializer)\r\n    {\r" +
-                    "\n        var contract = serializer.ContractResolver.ResolveContract(value.GetTyp" +
-                    "e());\r\n        contract.Converter = null;\r\n\r\n        var jObject = JObject.FromO" +
-                    "bject(value, serializer);\r\n        jObject.AddFirst(new JProperty(_discriminator" +
-                    ", value.GetType().Name));\r\n        writer.WriteToken(jObject.CreateReader());\r\n\r" +
-                    "\n        contract.Converter = this;\r\n    }\r\n\r\n    public override bool CanConver" +
-                    "t(Type objectType)\r\n    {\r\n        return true;\r\n    }\r\n\r\n    public override ob" +
-                    "ject ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSeri" +
-                    "alizer serializer)\r\n    {\r\n        var jObject = serializer.Deserialize<JObject>" +
-                    "(reader);\r\n        var discriminator = jObject.GetValue(_discriminator).Value<st" +
-                    "ring>();\r\n        var subtype = GetObjectSubtype(objectType, discriminator);\r\n\r\n" +
-                    "        var contract = serializer.ContractResolver.ResolveContract(subtype);\r\n  " +
-                    "      contract.Converter = null;\r\n        var value = serializer.Deserialize(jOb" +
-                    "ject.CreateReader(), subtype);\r\n        contract.Converter = this;\r\n        retu" +
-                    "rn value;\r\n    }\r\n\r\n    private Type GetObjectSubtype(Type objectType, string di" +
-                    "scriminator)\r\n    {\r\n        var knownTypeAttributes = objectType.GetTypeInfo()." +
-                    "GetCustomAttributes().Where(a => a.GetType().Name == \"KnownTypeAttribute\");\r\n   " +
-                    "     dynamic knownTypeAttribute = knownTypeAttributes.SingleOrDefault(a => IsKnw" +
-                    "onTypeTargetType(a, discriminator));\r\n        if (knownTypeAttribute != null)\r\n " +
-                    "           return knownTypeAttribute.Type;\r\n\r\n        var typeName = objectType." +
-                    "Namespace + \".\" + discriminator;\r\n        return objectType.GetTypeInfo().Assemb" +
-                    "ly.GetType(typeName);\r\n    }\r\n\r\n    private bool IsKnwonTypeTargetType(dynamic a" +
-                    "ttribute, string discriminator)\r\n    {\r\n        return attribute?.Type.Name == d" +
-                    "iscriminator;\r\n    }\r\n}");
+            this.Write("[GeneratedCode(\"NJsonSchema\", \"");
+            
+            #line 2 "C:\Data\Projects\NJsonSchema\src\NJsonSchema.CodeGeneration\CSharp\Templates\JsonInheritanceConverterTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(JsonSchema4.ToolchainVersion));
+            
+            #line default
+            #line hidden
+            this.Write("\")]\r\ninternal class JsonInheritanceConverter : JsonConverter\r\n{\r\n    internal sta" +
+                    "tic readonly string DefaultDiscriminatorName = \"discriminator\";\r\n\r\n    private r" +
+                    "eadonly string _discriminator;\r\n        \r\n    [ThreadStatic]\r\n    private static" +
+                    " bool _isReading;\r\n\r\n    [ThreadStatic]\r\n    private static bool _isWriting;\r\n\r\n" +
+                    "    public JsonInheritanceConverter()\r\n    {\r\n        _discriminator = DefaultDi" +
+                    "scriminatorName;\r\n    }\r\n\r\n    public JsonInheritanceConverter(string discrimina" +
+                    "tor)\r\n    {\r\n        _discriminator = discriminator;\r\n    }\r\n\r\n    public overri" +
+                    "de void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)\r\n " +
+                    "   {\r\n        try\r\n        {\r\n            _isWriting = true;\r\n\r\n            var " +
+                    "jObject = JObject.FromObject(value, serializer);\r\n            jObject.AddFirst(n" +
+                    "ew JProperty(_discriminator, value.GetType().Name));\r\n            writer.WriteTo" +
+                    "ken(jObject.CreateReader());\r\n        }\r\n        finally\r\n        {\r\n           " +
+                    " _isWriting = false;\r\n        }\r\n    }\r\n\r\n    public override bool CanWrite\r\n   " +
+                    " {\r\n        get\r\n        {\r\n            if (_isWriting)\r\n            {\r\n        " +
+                    "        _isWriting = false;\r\n                return false; \r\n            }\r\n    " +
+                    "        return true;\r\n        }\r\n    }\r\n\r\n    public override bool CanRead\r\n    " +
+                    "{\r\n        get\r\n        {\r\n            if (_isReading)\r\n            {\r\n         " +
+                    "       _isReading = false;\r\n                return false;\r\n            }\r\n      " +
+                    "      return true;\r\n        }\r\n    }\r\n\r\n    public override bool CanConvert(Type" +
+                    " objectType)\r\n    {\r\n        return true;\r\n    }\r\n\r\n    public override object R" +
+                    "eadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer" +
+                    " serializer)\r\n    {\r\n        var jObject = serializer.Deserialize<JObject>(reade" +
+                    "r);\r\n        var discriminator = jObject.GetValue(_discriminator).Value<string>(" +
+                    ");\r\n        var subtype = GetObjectSubtype(objectType, discriminator);\r\n\r\n      " +
+                    "  try\r\n        {\r\n            _isReading = true;\r\n            return serializer." +
+                    "Deserialize(jObject.CreateReader(), subtype);\r\n        }\r\n        finally\r\n     " +
+                    "   {\r\n            _isReading = false;\r\n        }\r\n    }\r\n\r\n    private Type GetO" +
+                    "bjectSubtype(Type objectType, string discriminator)\r\n    {\r\n        var knownTyp" +
+                    "eAttributes = objectType.GetTypeInfo().GetCustomAttributes().Where(a => a.GetTyp" +
+                    "e().Name == \"KnownTypeAttribute\");\r\n        dynamic knownTypeAttribute = knownTy" +
+                    "peAttributes.SingleOrDefault(a => IsKnwonTypeTargetType(a, discriminator));\r\n   " +
+                    "     if (knownTypeAttribute != null)\r\n            return knownTypeAttribute.Type" +
+                    ";\r\n\r\n        var typeName = objectType.Namespace + \".\" + discriminator;\r\n       " +
+                    " return objectType.GetTypeInfo().Assembly.GetType(typeName);\r\n    }\r\n\r\n    priva" +
+                    "te bool IsKnwonTypeTargetType(dynamic attribute, string discriminator)\r\n    {\r\n " +
+                    "       return attribute?.Type.Name == discriminator;\r\n    }\r\n}");
             return this.GenerationEnvironment.ToString();
         }
     }

@@ -249,7 +249,7 @@ namespace NJsonSchema.Validation
 
             if (token.Type == JTokenType.Float || token.Type == JTokenType.Integer)
             {
-                var value = token.Value<double>();
+                var value = token.Value<decimal>();
 
                 if (_schema.Minimum.HasValue && (_schema.IsExclusiveMinimum ? value <= _schema.Minimum : value < _schema.Minimum))
                     errors.Add(new ValidationError(ValidationErrorKind.NumberTooSmall, propertyName, propertyPath));
@@ -293,6 +293,9 @@ namespace NJsonSchema.Validation
         private void ValidateProperties(JToken token, string propertyName, string propertyPath, List<ValidationError> errors)
         {
             var obj = token as JObject;
+            if (obj == null && _schema.Type.HasFlag(JsonObjectType.Null))
+                return;
+
             foreach (var propertyInfo in _schema.Properties)
             {
                 var newPropertyPath = !string.IsNullOrEmpty(propertyPath) ? propertyPath + "." + propertyInfo.Key : propertyInfo.Key;

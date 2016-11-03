@@ -59,7 +59,6 @@
     <Compile Include="ISchemaDefinitionAppender.cs" />
     <Compile Include="ISchemaResolver.cs" />
     <Compile Include="ITypeNameGenerator.cs" />
-    <Compile Include="JsonExceptionConverter.cs" />
     <Compile Include="JsonFormatStrings.cs" />
     <Compile Include="JsonObjectType.cs" />
     <Compile Include="JsonObjectTypeDescription.cs" />

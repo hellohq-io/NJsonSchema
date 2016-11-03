@@ -40,7 +40,7 @@ namespace NJsonSchema.CodeGeneration.TypeScript
             if (schemas != null)
             {
                 foreach (var pair in schemas)
-                    AddOrReplaceTypeGenerator(GetOrGenerateTypeName(pair.Value, pair.Key), 
+                    AddOrReplaceTypeGenerator(GetOrGenerateTypeName(pair.Value, pair.Key),
                         new TypeScriptGenerator(pair.Value.ActualSchema, Settings, this, _rootObject));
             }
         }
@@ -78,7 +78,7 @@ namespace NJsonSchema.CodeGeneration.TypeScript
                 return ResolveString(schema, typeNameHint);
 
             if (type.HasFlag(JsonObjectType.File))
-                return "FileParameter";
+                return "any";
 
             if (schema.IsDictionary)
             {
@@ -97,24 +97,37 @@ namespace NJsonSchema.CodeGeneration.TypeScript
             return new TypeScriptGenerator(schema, Settings, this, _rootObject);
         }
 
-        /// <summary>Gets or generates the type name for the given schema.</summary>
-        /// <param name="schema">The schema.</param>
-        /// <param name="typeNameHint">The type name hint.</param>
-        /// <returns>The type name.</returns>
-        public override string GetOrGenerateTypeName(JsonSchema4 schema, string typeNameHint)
-        {
-            var typeName = base.GetOrGenerateTypeName(schema, typeNameHint);
-
-            if (schema.IsEnumeration && schema.Type == JsonObjectType.Integer)
-                return typeName + "AsInteger";
-
-            return typeName;
-        }
-
         private string ResolveString(JsonSchema4 schema, string typeNameHint)
         {
-            if (schema.Format == JsonFormatStrings.DateTime && Settings.DateTimeType != TypeScriptDateTimeType.String)
-                return Settings.DateTimeType == TypeScriptDateTimeType.Date ? "Date" : "moment.Moment";
+            // TODO: Make this more generic (see DataConversionGenerator.IsDate)
+            if (Settings.DateTimeType == TypeScriptDateTimeType.Date)
+            {
+                if (schema.Format == JsonFormatStrings.Date)
+                    return "Date";
+
+                if (schema.Format == JsonFormatStrings.DateTime)
+                    return "Date";
+
+                if (schema.Format == JsonFormatStrings.Time)
+                    return "string";
+
+                if (schema.Format == JsonFormatStrings.TimeSpan)
+                    return "string";
+            }
+            else if (Settings.DateTimeType == TypeScriptDateTimeType.MomentJS)
+            {
+                if (schema.Format == JsonFormatStrings.Date)
+                    return "moment.Moment";
+
+                if (schema.Format == JsonFormatStrings.DateTime)
+                    return "moment.Moment";
+
+                if (schema.Format == JsonFormatStrings.Time)
+                    return "moment.Moment";
+
+                if (schema.Format == JsonFormatStrings.TimeSpan)
+                    return "moment.Moment";
+            }
 
             if (schema.IsEnumeration)
                 return AddGenerator(schema, typeNameHint);

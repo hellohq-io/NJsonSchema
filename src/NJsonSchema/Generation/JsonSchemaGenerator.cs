@@ -146,8 +146,7 @@ namespace NJsonSchema.Generation
             {
                 typeDescription.ApplyType(schema);
 
-                var genericTypeArguments = ReflectionExtensions.GetGenericTypeArguments(type);
-                var itemType = genericTypeArguments.Length == 0 ? type.GetElementType() : genericTypeArguments[0];
+                var itemType = type.GetEnumerableItemType(); 
                 if (itemType == null)
                 {
                     var jsonSchemaAttribute = type.GetTypeInfo().GetCustomAttribute<JsonSchemaAttribute>();
@@ -211,7 +210,17 @@ namespace NJsonSchema.Generation
             if (valueType == typeof(object))
                 schema.AdditionalPropertiesSchema = JsonSchema4.CreateAnySchema();
             else
-                schema.AdditionalPropertiesSchema = Generate(valueType, schemaResolver, schemaDefinitionAppender);
+            {
+                if (RequiresSchemaReference(valueType, null))
+                {
+                    schema.AdditionalPropertiesSchema = new JsonSchema4
+                    {
+                        SchemaReference = Generate(valueType, schemaResolver, schemaDefinitionAppender)
+                    };
+                }
+                else
+                    schema.AdditionalPropertiesSchema = Generate(valueType, schemaResolver, schemaDefinitionAppender); 
+            }
 
             schema.AllowAdditionalProperties = true;
         }
@@ -383,14 +392,8 @@ namespace NJsonSchema.Generation
                     propertyType = propertyType.GetGenericArguments()[0];
 #endif
 
-                var typeMapper = Settings.TypeMappers.FirstOrDefault(m => m.MappedType == propertyType);
-                var useSchemaReference =
-                    typeMapper?.UseReference != false &&
-                    !Settings.TypeMappers.Any(m => m is PrimitiveTypeMapper) &&
-                    !propertyTypeDescription.IsDictionary &&
-                    (propertyTypeDescription.Type.HasFlag(JsonObjectType.Object) || propertyTypeDescription.IsEnum);
-
-                if (useSchemaReference)
+                var requiresSchemaReference = RequiresSchemaReference(propertyType, attributes);
+                if (requiresSchemaReference)
                 {
                     var propertySchema = Generate<JsonSchema4>(propertyType, attributes, schemaResolver, schemaDefinitionAppender);
 
@@ -427,18 +430,20 @@ namespace NJsonSchema.Generation
                     jsonPropertyAttribute.Required == Required.Always ||
                     jsonPropertyAttribute.Required == Required.AllowNull);
 
+                var isDataContractMemberRequired = GetDataMemberAttribute(parentType, attributes)?.IsRequired == true;
+
                 var hasRequiredAttribute = requiredAttribute != null;
-                if (hasRequiredAttribute || hasJsonNetAttributeRequired)
+                if (hasRequiredAttribute || isDataContractMemberRequired || hasJsonNetAttributeRequired)
                     parentSchema.RequiredProperties.Add(propertyName);
 
                 var isJsonNetAttributeNullable = jsonPropertyAttribute != null && jsonPropertyAttribute.Required == Required.AllowNull;
 
-                var isNullable = !hasRequiredAttribute && (propertyTypeDescription.IsNullable || isJsonNetAttributeNullable);
+                var isNullable = !hasRequiredAttribute && !isDataContractMemberRequired && (propertyTypeDescription.IsNullable || isJsonNetAttributeNullable);
                 if (isNullable)
                 {
                     if (Settings.NullHandling == NullHandling.JsonSchema)
                     {
-                        if (useSchemaReference)
+                        if (requiresSchemaReference)
                             jsonProperty.OneOf.Add(new JsonSchema4 { Type = JsonObjectType.Null });
                         else if (jsonProperty.Type == JsonObjectType.None)
                         {
@@ -465,16 +470,39 @@ namespace NJsonSchema.Generation
             }
         }
 
+        private bool RequiresSchemaReference(Type type, IEnumerable<Attribute> parentAttributes)
+        {
+            var typeDescription = JsonObjectTypeDescription.FromType(type, parentAttributes, Settings.DefaultEnumHandling);
+
+            var typeMapper = Settings.TypeMappers.FirstOrDefault(m => m.MappedType == type);
+            if (typeMapper != null)
+                return typeMapper.UseReference;
+            
+            return !typeDescription.IsDictionary && (typeDescription.Type.HasFlag(JsonObjectType.Object) || typeDescription.IsEnum);
+        }
+
         private static bool IsPropertyIgnored(Type parentType, Attribute[] propertyAttributes)
         {
             if (propertyAttributes.Any(a => a is JsonIgnoreAttribute))
                 return true;
 
-            var hasDataContractAttribute = parentType.GetTypeInfo().GetCustomAttributes().Any(a => a.GetType().Name == "DataContractAttribute");
-            if (hasDataContractAttribute && propertyAttributes.All(a => a.GetType().Name != "DataMemberAttribute") && !propertyAttributes.Any(a => a is JsonPropertyAttribute))
+            if (HasDataContractAttribute(parentType) && GetDataMemberAttribute(parentType, propertyAttributes) == null && !propertyAttributes.Any(a => a is JsonPropertyAttribute))
                 return true;
 
             return false;
+        }
+
+        private static dynamic GetDataMemberAttribute(Type parentType, Attribute[] propertyAttributes)
+        {
+            if (!HasDataContractAttribute(parentType))
+                return null;
+
+            return propertyAttributes.FirstOrDefault(a => a.GetType().Name == "DataMemberAttribute");
+        }
+
+        private static bool HasDataContractAttribute(Type parentType)
+        {
+            return parentType.GetTypeInfo().GetCustomAttributes().Any(a => a.GetType().Name == "DataContractAttribute");
         }
 
         /// <summary>Applies the property annotations to the JSON property.</summary>
@@ -505,10 +533,10 @@ namespace NJsonSchema.Generation
                 dynamic rangeAttribute = attributes.TryGetIfAssignableTo("System.ComponentModel.DataAnnotations.RangeAttribute");
                 if (rangeAttribute != null)
                 {
-                    if (rangeAttribute.Minimum != null)
-                        jsonProperty.Minimum = rangeAttribute.Minimum;
-                    if (rangeAttribute.Maximum != null)
-                        jsonProperty.Maximum = rangeAttribute.Maximum;
+                    if (rangeAttribute.Minimum != null && rangeAttribute.Minimum > double.MinValue)
+                        jsonProperty.Minimum = (decimal?)(double)rangeAttribute.Minimum;
+                    if (rangeAttribute.Maximum != null && rangeAttribute.Maximum < double.MaxValue)
+                        jsonProperty.Maximum = (decimal?)(double)rangeAttribute.Maximum;
                 }
 
                 var multipleOfAttribute = attributes.OfType<MultipleOfAttribute>().SingleOrDefault();

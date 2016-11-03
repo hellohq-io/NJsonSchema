@@ -1,10 +1,12 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NJsonSchema.CodeGeneration.CSharp;
 using NJsonSchema.CodeGeneration.Tests.Models;
 using NJsonSchema.Generation;
@@ -165,7 +167,7 @@ namespace NJsonSchema.CodeGeneration.Tests.CSharp
         }
         class CustomTypeNameGenerator : ITypeNameGenerator
         {
-            public string Generate(JsonSchema4 schema)
+            public string Generate(JsonSchema4 schema, string typeNameHint)
             {
                 return "MyCustomType" + ConversionUtilities.ConvertToUpperCamelCase(schema.TypeNameRaw, true);
             }
@@ -522,6 +524,7 @@ namespace NJsonSchema.CodeGeneration.Tests.CSharp
 
         public class ClassWithDefaultEnumProperty
         {
+            [JsonConverter(typeof(StringEnumConverter))]
             [DefaultValue(ConstructionCode.NON_CBST)]
             public ConstructionCode ConstructionCode { get; set; }
         }
@@ -573,12 +576,12 @@ namespace NJsonSchema.CodeGeneration.Tests.CSharp
         ""NON_CBST""
       ],
       ""enum"": [
-        0,
-        1,
-        2,
-        3
+        ""FIRE_RSTV"",
+        ""FRAME"",
+        ""JOIST_MAS"",
+        ""NON_CBST""
       ],
-      ""default"": 3
+      ""default"": ""JOIST_MAS""
     }
   }
 }";
@@ -589,7 +592,7 @@ namespace NJsonSchema.CodeGeneration.Tests.CSharp
             var code = generator.GenerateFile();
 
             //// Assert
-            Assert.IsTrue(code.Contains("public ConstructionCode ConstructionCode { get; set; } = ConstructionCode.NON_CBST;"));
+            Assert.IsTrue(code.Contains("public ConstructionCode ConstructionCode { get; set; } = ConstructionCode.JOIST_MAS;"));
         }
 
         [TestMethod]
@@ -862,6 +865,60 @@ namespace NJsonSchema.CodeGeneration.Tests.CSharp
             //// Assert
             Assert.IsTrue(code.Contains("public A A { get; set; } = new A();"));
             Assert.IsFalse(code.Contains("public B B { get; set; } = new B();"));
+        }
+
+        [TestMethod]
+        public void When_definition_is_named_Object_then_JObject_is_generated()
+        {
+            //// Arrange
+            var json = 
+@"{
+	""type"": ""object"", 
+	""properties"": {
+		""foo"": {
+			""$ref"": ""#/definitions/Object""
+		}
+	}, 
+	""definitions"": {
+		""Object"": { 
+			""type"": ""object"", 
+			""properties"": {} 
+		}
+	}
+}";
+            var schema = JsonSchema4.FromJson(json);
+
+            //// Act
+            var generator = new CSharpGenerator(schema, new CSharpGeneratorSettings
+            {
+                ClassStyle = CSharpClassStyle.Poco,
+                NullHandling = NullHandling.Swagger
+            });
+            var code = generator.GenerateFile();
+
+            //// Assert
+            Assert.IsTrue(code.Contains("public JObject Foo { get; set; }"));
+        }
+
+        public class ObsClass
+        {
+            public ObservableCollection<string> Test { get; set; }
+        }
+
+        [TestMethod]
+        public void When_property_is_ObservableCollection_then_generated_code_uses_the_same_class()
+        {
+            //// Arrange
+            var schema = JsonSchema4.FromType<ObsClass>();
+            var settings = new CSharpGeneratorSettings();
+            var generator = new CSharpGenerator(schema, settings);
+
+            //// Act
+            var output = generator.GenerateFile();
+            Console.WriteLine(output);
+
+            //// Assert
+            Assert.IsTrue(output.Contains("ObservableCollection<string>"));
         }
     }
 }

@@ -166,7 +166,7 @@ namespace NJsonSchema
         public string Format { get; private set; }
 
         /// <summary>Gets a value indicating whether this is a complex type (i.e. object, dictionary or array).</summary>
-        public bool IsComplexType => Type.HasFlag(JsonObjectType.Object) || Type.HasFlag(JsonObjectType.Array);
+        public bool IsComplexType => IsDictionary || Type.HasFlag(JsonObjectType.Object) || Type.HasFlag(JsonObjectType.Array);
 
         /// <summary>Gets a value indicating whether the type is nullable.</summary>
         public bool IsNullable { get; private set; }
@@ -180,6 +180,10 @@ namespace NJsonSchema
         {
             if (IsDictionaryType(type))
                 return false;
+
+            // TODO: Improve these checks
+            if (type.Name == "ObservableCollection`1") 
+                return true;
 
             return type.IsArray || (type.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IEnumerable)) &&
                 (type.GetTypeInfo().BaseType == null ||
@@ -211,6 +215,10 @@ namespace NJsonSchema
         {
             if (IsDictionaryType(type))
                 return false;
+
+            // TODO: Improve these checks
+            if (type.Name == "ObservableCollection`1") 
+                return true;
 
             return type.IsArray || (type.GetTypeInfo().GetInterfaces().Contains(typeof(IEnumerable)) &&
                 (type.GetTypeInfo().BaseType == null ||

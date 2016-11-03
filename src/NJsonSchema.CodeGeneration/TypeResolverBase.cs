@@ -8,7 +8,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace NJsonSchema.CodeGeneration
 {
@@ -19,8 +18,6 @@ namespace NJsonSchema.CodeGeneration
         private readonly Dictionary<string, TGenerator> _types = new Dictionary<string, TGenerator>();
         private readonly Dictionary<JsonSchema4, string> _generatedTypeNames = new Dictionary<JsonSchema4, string>();
         private readonly ITypeNameGenerator _typeNameGenerator;
-
-        private int _anonymousTypeCount = 0;
 
         /// <summary>Initializes a new instance of the <see cref="TypeResolverBase{TGenerator}"/> class.</summary>
         /// <param name="typeNameGenerator">The type name generator.</param>
@@ -124,14 +121,21 @@ namespace NJsonSchema.CodeGeneration
 
             if (!_generatedTypeNames.ContainsKey(schema))
             {
-                var typeName = schema.GetTypeName(_typeNameGenerator);
+                var typeName = schema.GetTypeName(_typeNameGenerator, typeNameHint);
 
                 if (string.IsNullOrEmpty(typeName))
                     typeName = GenerateTypeName(typeNameHint);
+                else
+                {
+                    if (_generatedTypeNames.ContainsValue(typeName))
+                        typeName = GenerateTypeName(typeName);
+                }
 
                 typeName = typeName
                     .Replace("[", "Of")
-                    .Replace("]", string.Empty);
+                    .Replace("]", string.Empty)
+                    .Replace(",", "And")
+                    .Replace(" ", string.Empty);
 
                 _generatedTypeNames[schema] = ConversionUtilities.ConvertToUpperCamelCase(typeName, true);
             }
@@ -146,17 +150,18 @@ namespace NJsonSchema.CodeGeneration
         {
             if (!string.IsNullOrEmpty(typeNameHint))
             {
-                typeNameHint.Split('.').Last();
+                typeNameHint = typeNameHint.Split('.').Last();
 
                 if (!_generatedTypeNames.ContainsValue(typeNameHint))
                     return typeNameHint;
 
+                var count = 1;
                 do
                 {
-                    _anonymousTypeCount++;
-                } while (_generatedTypeNames.ContainsValue(typeNameHint + _anonymousTypeCount));
+                    count++;
+                } while (_generatedTypeNames.ContainsValue(typeNameHint + count));
 
-                return typeNameHint + _anonymousTypeCount;
+                return typeNameHint + count;
             }
             else
                 return GenerateTypeName("Anonymous");
@@ -170,7 +175,7 @@ namespace NJsonSchema.CodeGeneration
         protected string ResolveDictionaryValueType(JsonSchema4 schema, string fallbackType, NullHandling nullHandling)
         {
             if (schema.AdditionalPropertiesSchema != null)
-                return Resolve(schema.AdditionalPropertiesSchema, schema.AdditionalPropertiesSchema.IsNullable(nullHandling), null);
+                return Resolve(schema.AdditionalPropertiesSchema, schema.AdditionalPropertiesSchema.ActualSchema.IsNullable(nullHandling), null);
 
             if (schema.AllowAdditionalProperties == false && schema.PatternProperties.Any())
             {

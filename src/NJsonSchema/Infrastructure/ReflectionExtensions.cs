@@ -72,6 +72,13 @@ namespace NJsonSchema.Infrastructure
             return false;
         }
 
+        /// <summary>Gets the type of the array item.</summary>
+        public static Type GetEnumerableItemType(this Type type)
+        {
+            var genericTypeArguments = GetGenericTypeArguments(type);
+            return genericTypeArguments.Length == 0 ? type.GetElementType() : genericTypeArguments[0];
+        }
+
         /// <summary>Gets the generic type arguments of a type.</summary>
         /// <param name="type">The type.</param>
         /// <returns>The type arguments.</returns>
@@ -106,10 +113,10 @@ namespace NJsonSchema.Infrastructure
         {
 #if !LEGACY
             if (type.IsConstructedGenericType)
-                return type.Name.Split('`').First() + "Of" + GetSafeTypeName(type.GenericTypeArguments[0]);
+                return type.Name.Split('`').First() + "Of" + string.Join("And", type.GenericTypeArguments.Select(GetSafeTypeName));
 #else
             if (type.IsGenericType)
-                return type.Name.Split('`').First() + "Of" + GetSafeTypeName(type.GetGenericArguments()[0]);
+                return type.Name.Split('`').First() + "Of" + string.Join("And", type.GetGenericArguments().Select(GetSafeTypeName));
 #endif
 
             return type.Name;
