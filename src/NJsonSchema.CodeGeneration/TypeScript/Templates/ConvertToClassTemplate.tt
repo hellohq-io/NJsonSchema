@@ -5,9 +5,10 @@
 <#=Model.Variable#> = <#=Model.Value#> ? <#=Model.Type#>.fromJS(<#=Model.Value#>) : <#if(Model.HasDefaultValue){#><#=Model.DefaultValue#><#}else{#>null<#}#>;
 <#}else{#>
 <#if(Model.IsArray){#>
-if (<#=Model.Value#> && <#=Model.Value#>.value.constructor === Array) {
+if (<#=Model.Value#> && ((<#=Model.Value#>.value != null && <#=Model.Value#>.value.constructor === Array) || (<#=Model.Value#> != null && <#=Model.Value#>.constructor === Array))) {
     <#=Model.Variable#> = [];
-    for (let item of <#=Model.Value#>.value)
+	let arrayList = <#=Model.Value#>.value != null ? <#=Model.Value#>.value : <#=Model.Value#>;
+    for (let item of arrayList)
 <#if(Model.IsArrayItemNewableObject){#>
         <#=Model.Variable#>.push(<#=Model.ArrayItemType#>.fromJS(item));
 <#}else{#>

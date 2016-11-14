@@ -105,461 +105,490 @@ if(Model.IsArray){
             
             #line default
             #line hidden
-            this.Write(" && ");
+            this.Write(" && ((");
             
             #line 8 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
-            this.Write(".value.constructor === Array) {\r\n    ");
+            this.Write(".value != null && ");
+            
+            #line 8 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write(".value.constructor === Array) || (");
+            
+            #line 8 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write(" != null && ");
+            
+            #line 8 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write(".constructor === Array))) {\r\n    ");
             
             #line 9 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
-            this.Write(" = [];\r\n    for (let item of ");
+            this.Write(" = [];\r\n\tlet arrayList = ");
             
             #line 10 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
-            this.Write(".value)\r\n");
+            this.Write(".value != null ? ");
             
-            #line 11 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 10 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write(".value : ");
+            
+            #line 10 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write(";\r\n    for (let item of arrayList)\r\n");
+            
+            #line 12 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.IsArrayItemNewableObject){
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 12 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 13 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write(".push(");
             
-            #line 12 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 13 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.ArrayItemType));
             
             #line default
             #line hidden
             this.Write(".fromJS(item));\r\n");
             
-            #line 13 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 14 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             
-            #line 14 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 15 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.IsArrayItemDate){
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 15 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 16 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write(".push(");
             
-            #line 15 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 16 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.StringToDateCode));
             
             #line default
             #line hidden
             this.Write("(item));\r\n");
             
-            #line 16 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 17 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             this.Write("        ");
             
-            #line 17 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 18 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write(".push(item);\r\n");
             
-            #line 18 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 19 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }}
             
             #line default
             #line hidden
             this.Write("}\r\n");
             
-            #line 20 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 21 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             
-            #line 21 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 22 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.IsDictionary){
             
             #line default
             #line hidden
             this.Write("if (");
             
-            #line 22 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 23 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(") {\r\n    ");
             
-            #line 23 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 24 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write(" = {};\r\n    for (let key in ");
             
-            #line 24 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 25 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(") {\r\n        if (");
             
-            #line 25 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 26 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(".hasOwnProperty(key))\r\n");
             
-            #line 26 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.IsDictionaryValueNewableObject){
             
             #line default
             #line hidden
             this.Write("            ");
             
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write("[key] = ");
             
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write("[key] ? ");
             
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.DictionaryValueType));
             
             #line default
             #line hidden
             this.Write(".fromJS(");
             
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write("[key]) : ");
             
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.HasDefaultValue){
             
             #line default
             #line hidden
             
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.DefaultValue));
             
             #line default
             #line hidden
-            
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-}else{
-            
-            #line default
-            #line hidden
-            this.Write("null");
-            
-            #line 27 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n");
             
             #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
+            this.Write("null");
+            
+            #line 28 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+}
+            
+            #line default
+            #line hidden
+            this.Write(";\r\n");
             
             #line 29 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+}else{
+            
+            #line default
+            #line hidden
+            
+            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.IsDictionaryValueDate){
             
             #line default
             #line hidden
             this.Write("            ");
             
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write("[key] = ");
             
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write("[key] ? ");
             
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.StringToDateCode));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write("[key].toString()) : ");
             
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.HasDefaultValue){
             
             #line default
             #line hidden
             
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.DefaultValue));
             
             #line default
             #line hidden
-            
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-}else{
-            
-            #line default
-            #line hidden
-            this.Write("null");
-            
-            #line 30 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n");
             
             #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
-            this.Write("            ");
-            
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
-            
-            #line default
-            #line hidden
-            this.Write("[key] = ");
-            
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
-            
-            #line default
-            #line hidden
-            this.Write("[key] !== undefined ? ");
-            
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
-            
-            #line default
-            #line hidden
-            this.Write("[key] : ");
-            
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-if(Model.HasDefaultValue){
-            
-            #line default
-            #line hidden
-            
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Model.DefaultValue));
-            
-            #line default
-            #line hidden
-            
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-}else{
-            
-            #line default
-            #line hidden
             this.Write("null");
             
-            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 31 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
+            #line 32 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+}else{
+            
+            #line default
+            #line hidden
+            this.Write("            ");
+            
             #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
+            
+            #line default
+            #line hidden
+            this.Write("[key] = ");
+            
+            #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write("[key] !== undefined ? ");
+            
+            #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
+            
+            #line default
+            #line hidden
+            this.Write("[key] : ");
+            
+            #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+if(Model.HasDefaultValue){
+            
+            #line default
+            #line hidden
+            
+            #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Model.DefaultValue));
+            
+            #line default
+            #line hidden
+            
+            #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+}else{
+            
+            #line default
+            #line hidden
+            this.Write("null");
+            
+            #line 33 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+}
+            
+            #line default
+            #line hidden
+            this.Write(";\r\n");
+            
+            #line 34 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }}
             
             #line default
             #line hidden
             this.Write("    }\r\n}\r\n");
             
-            #line 36 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 37 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             this.Write("    ");
             
-            #line 37 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.IsDate){
             
             #line default
             #line hidden
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write(" = ");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(" ? ");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.StringToDateCode));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(".toString()) : ");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.HasDefaultValue){
             
             #line default
             #line hidden
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.StringToDateCode));
             
             #line default
             #line hidden
             this.Write("(");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.DefaultValue));
             
             #line default
             #line hidden
             this.Write(")");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             this.Write("null");
             
-            #line 38 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write(";\r\n    ");
             
-            #line 39 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Variable));
             
             #line default
             #line hidden
             this.Write(" = ");
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(" !== undefined ? ");
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.Value));
             
             #line default
             #line hidden
             this.Write(" : ");
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 if(Model.HasDefaultValue){
             
             #line default
             #line hidden
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Model.DefaultValue));
             
             #line default
             #line hidden
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+            #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }else{
             
             #line default
             #line hidden
             this.Write("null");
             
-            #line 40 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n    ");
-            
             #line 41 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }
             
             #line default
             #line hidden
+            this.Write(";\r\n    ");
             
             #line 42 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }
@@ -574,6 +603,12 @@ if(Model.HasDefaultValue){
             #line hidden
             
             #line 44 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
+}
+            
+            #line default
+            #line hidden
+            
+            #line 45 "C:\HQSB\NJsonSchema\src\NJsonSchema.CodeGeneration\TypeScript\Templates\ConvertToClassTemplate.tt"
 }
             
             #line default
