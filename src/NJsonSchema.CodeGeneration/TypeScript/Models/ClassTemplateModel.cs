@@ -81,6 +81,7 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Models
         /// <summary>Gets the property models.</summary>
         public List<PropertyModel> Properties => _schema.ActualProperties.Values
             .Where(v => v.IsInheritanceDiscriminator == false)
+            .Where(p => p.Name != "Id" && p.Name != "CreatedOn" && p.Name != "CreatedBy" && p.Name != "UpdatedOn" && p.Name != "UpdatedBy")
             .Select(property => new PropertyModel(this, property, _typeName, _resolver, _settings)).ToList();
     }
 }

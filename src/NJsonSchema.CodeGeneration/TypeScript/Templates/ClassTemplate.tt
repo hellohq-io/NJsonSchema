@@ -2,7 +2,7 @@
 <#@ assembly name="System.Core" #>
 <#@ import namespace="NJsonSchema.CodeGeneration" #>
 <#if(Model.HasDescription){#>/** <#=Model.Description#> */
-<#}#>export class <#=Model.Class#><#=Model.Inheritance#> {<#foreach(var property in Model.Properties){#> 
+<#}#>export class <#=Model.Class#> extends HQAPIEntity <#=Model.Inheritance#> {<#foreach(var property in Model.Properties){#> 
 <#if(property.HasDescription){#>    /** <#=property.Description#> */
 <#}#>    <#if(property.IsReadOnly){#>readonly <#}#><#=property.PropertyName#>: <#=property.Type#><#if(property.HasDefaultValue){#> = <#=property.DefaultValue#><#}#>;<#}#>
 
@@ -11,9 +11,7 @@
 <#}#>
 
     constructor(data?: any) {
-<#if(Model.HasInheritance){#>
         super(data);
-<#}#>
 <#if(Model.HasBaseDiscriminator){#>
         this._discriminator = "<#=Model.DiscriminatorName#>";
 <#}#>
