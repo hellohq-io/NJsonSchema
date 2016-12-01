@@ -15,7 +15,6 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var json = @"{
                 '$schema': 'http://json-schema.org/draft-04/schema#',
                 'type': 'object',
-                'x-typeName': 'Foo', 
                 'properties': { 
                     'prop1' : { 'type' : 'string' } 
                 },
@@ -31,7 +30,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             //// Act
             var schema = JsonSchema4.FromJson(json);
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings { TypeStyle = TypeScriptTypeStyle.Class });
-            var code = generator.GenerateFile();
+            var code = generator.GenerateFile("Foo");
 
             //// Assert
             Assert.IsTrue(code.Contains("class Foo"));
@@ -47,25 +46,28 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var json = @"{
                 '$schema': 'http://json-schema.org/draft-04/schema#',
                 'type': 'object',
-                'x-typeName': 'Foo', 
                 'properties': { 
                     'prop1' : { 'type' : 'string' } 
                 },
                 'allOf': [
                     {
+                        '$ref': '#/definitions/Bar'
+                    }
+                ], 
+                'definitions': {
+                    'Bar':  {
                         'type': 'object', 
-                        'x-typeName': 'Bar', 
                         'properties': { 
                             'prop2' : { 'type' : 'string' } 
                         }
                     }
-                ]
+                }
             }";
 
             //// Act
             var schema = JsonSchema4.FromJson(json);
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings { TypeStyle = TypeScriptTypeStyle.Class });
-            var code = generator.GenerateFile();
+            var code = generator.GenerateFile("Foo");
 
             //// Assert
             Assert.IsTrue(code.Contains("class Foo extends Bar"));
@@ -78,7 +80,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = CreateGenerator();
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("Teacher");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"lastName: string;"));
@@ -92,7 +94,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = CreateGenerator();
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("Teacher");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"FirstName: string;"));
@@ -105,7 +107,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = CreateGenerator();
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("Teacher");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"interface Teacher extends Person"));
@@ -120,7 +122,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = new TypeScriptGenerator(schema);
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"/** EnumDesc. *"));
@@ -135,7 +137,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = new TypeScriptGenerator(schema);
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"/** ClassDesc. *"));
@@ -150,7 +152,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = new TypeScriptGenerator(schema);
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"/** PropertyDesc. *"));
@@ -161,10 +163,14 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
         {
             //// Arrange
             var schema = JsonSchema4.FromType<Teacher>();
-            var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings { TypeStyle = TypeScriptTypeStyle.Interface });
+            var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
+            {
+                TypeStyle = TypeScriptTypeStyle.Interface, 
+                TypeScriptVersion = 2.0m
+            });
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"readonly Birthday"));
@@ -175,7 +181,6 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
         {
             //// Arrange
             var schema = new JsonSchema4();
-            schema.TypeNameRaw = "MyClass";
             schema.Properties["foo-bar"] = new JsonProperty
             {
                 Type = JsonObjectType.String
@@ -184,7 +189,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings { TypeStyle = TypeScriptTypeStyle.Interface });
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsTrue(output.Contains(@"""foo-bar"": string;"));
@@ -199,7 +204,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
             var generator = new TypeScriptGenerator(schema);
 
             //// Act
-            var output = generator.GenerateFile();
+            var output = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsFalse(output.Contains(@"interface  {"));
@@ -235,7 +240,7 @@ namespace NJsonSchema.CodeGeneration.Tests.TypeScript
 
             //// Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings { TypeStyle = TypeScriptTypeStyle.Class });
-            var code = generator.GenerateFile();
+            var code = generator.GenerateFile("MyClass");
 
             //// Assert
             Assert.IsTrue(code.Contains("dict: { [key: string] : string; } = {};")); // property not nullable, must be initialized with {}

@@ -26,7 +26,8 @@ namespace NJsonSchema
         /// <exception cref="NotSupportedException">The PropertyNameHandling is not supported.</exception>
         public static string GetPropertyName(MemberInfo property, PropertyNameHandling propertyNameHandling)
         {
-            var propertyName = ReflectionCache.GetProperties(property.DeclaringType).First(p => p.MemberInfo.Name == property.Name).GetName();
+            var propertyName = ReflectionCache.GetPropertiesAndFields(property.DeclaringType)
+                .First(p => p.MemberInfo.Name == property.Name).GetName();
             switch (propertyNameHandling)
             {
                 case PropertyNameHandling.Default:
@@ -43,19 +44,19 @@ namespace NJsonSchema
         /// <summary>Gets the JSON path of the given object.</summary>
         /// <param name="root">The root object.</param>
         /// <param name="searchedObject">The object to search.</param>
-        /// <param name="schemaDefinitionAppender">Appends the <paramref name="searchedObject"/> to the 'definitions' if it could not be found.</param>
+        /// <param name="schemaResolver">The schema resolver.</param>
         /// <returns>The path or <c>null</c> when the object could not be found.</returns>
         /// <exception cref="InvalidOperationException">Could not find the JSON path of a child object.</exception>
-        public static string GetJsonPath(object root, object searchedObject, ISchemaDefinitionAppender schemaDefinitionAppender = null)
+        public static string GetJsonPath(object root, object searchedObject, JsonSchemaResolver schemaResolver = null)
         {
             var path = GetJsonPath(root, searchedObject, "#", new HashSet<object>());
             if (path == null)
             {
                 var searchedSchema = searchedObject as JsonSchema4;
-                if (schemaDefinitionAppender != null && searchedSchema != null)
+                if (schemaResolver != null && searchedSchema != null)
                 {
-                    schemaDefinitionAppender.Append(searchedSchema);
-                    return GetJsonPath(root, searchedObject, schemaDefinitionAppender);
+                    schemaResolver.AppendSchema(searchedSchema, null);
+                    return GetJsonPath(root, searchedObject, schemaResolver);
                 }
                 else
                     throw new InvalidOperationException("Could not find the JSON path of a child object.");
@@ -96,12 +97,12 @@ namespace NJsonSchema
             }
             else
             {
-                foreach (var property in ReflectionCache.GetProperties(obj.GetType()).Where(p => p.CustomAttributes.JsonIgnoreAttribute == null))
+                foreach (var member in ReflectionCache.GetPropertiesAndFields(obj.GetType()).Where(p => p.CustomAttributes.JsonIgnoreAttribute == null))
                 {
-                    var value = property.GetValue(obj);
+                    var value = member.GetValue(obj);
                     if (value != null)
                     {
-                        var pathSegment = property.GetName();
+                        var pathSegment = member.GetName();
                         var path = GetJsonPath(value, searchedObject, basePath + "/" + pathSegment, checkedObjects);
                         if (path != null)
                             return path;

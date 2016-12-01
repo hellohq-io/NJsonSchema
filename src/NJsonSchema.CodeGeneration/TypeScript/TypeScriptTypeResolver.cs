@@ -32,19 +32,7 @@ namespace NJsonSchema.CodeGeneration.TypeScript
 
         /// <summary>Gets or sets the namespace of the generated classes.</summary>
         public string Namespace { get; set; }
-
-        /// <summary>Adds all schemas to the resolver.</summary>
-        /// <param name="schemas">The schemas (typeNameHint-schema pairs).</param>
-        public override void AddSchemas(IDictionary<string, JsonSchema4> schemas)
-        {
-            if (schemas != null)
-            {
-                foreach (var pair in schemas)
-                    AddOrReplaceTypeGenerator(GetOrGenerateTypeName(pair.Value, pair.Key),
-                        new TypeScriptGenerator(pair.Value.ActualSchema, Settings, this, _rootObject));
-            }
-        }
-
+        
         /// <summary>Resolves and possibly generates the specified schema.</summary>
         /// <param name="schema">The schema.</param>
         /// <param name="isNullable">Specifies whether the given type usage is nullable.</param>
@@ -62,6 +50,13 @@ namespace NJsonSchema.CodeGeneration.TypeScript
                 return "any";
 
             var type = schema.Type;
+            if (type == JsonObjectType.None && schema.IsEnumeration)
+            {
+                type = schema.Enumeration.All(v => v is int) ? 
+                    JsonObjectType.Integer :
+                    JsonObjectType.String;
+            }
+
             if (type.HasFlag(JsonObjectType.Array))
                 return ResolveArray(schema, typeNameHint);
 

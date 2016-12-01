@@ -26,10 +26,6 @@ namespace NJsonSchema
             Initialize();
         }
 
-        /// <summary>Gets or sets the type name (class name of the object).</summary>
-        [JsonProperty("x-typeName", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, Order = -100 + 4)]
-        public string TypeNameRaw { get; set; }
-
         /// <summary>Gets or sets the discriminator (used in Swagger schemas).</summary>
         [JsonProperty("discriminator", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, Order = -100 + 5)]
         public string Discriminator { get; set; }
@@ -40,10 +36,7 @@ namespace NJsonSchema
         /// <returns>The type name.</returns>
         public string GetTypeName(ITypeNameGenerator typeNameGenerator, string typeNameHint)
         {
-            if (typeNameGenerator != null)
-                return typeNameGenerator.Generate(this, typeNameHint)?.Split('.').Last();
-
-            return TypeNameRaw?.Split('.').Last();
+            return typeNameGenerator.Generate(this, typeNameHint);
         }
 
         /// <summary>Gets or sets the enumeration names (optional, draft v5). </summary>

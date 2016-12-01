@@ -84,17 +84,7 @@ namespace NJsonSchema
                 return null;
 
             if (segments.Count == 0)
-            {
-                var jsonSchema = obj as JsonSchema4;
-                if (jsonSchema != null && jsonSchema.TypeNameRaw == null)
-                {
-                    var referencesSchemaInDefinitionsList = allSegments.Count >= 2 && allSegments.ElementAt(allSegments.Count - 2) == "definitions";
-                    if (referencesSchemaInDefinitionsList)
-                        jsonSchema.TypeNameRaw = allSegments.Last();
-                }
-
-                return jsonSchema;
-            }
+                return obj as JsonSchema4;
 
             checkedObjects.Add(obj);
             var firstSegment = segments[0];
@@ -116,12 +106,12 @@ namespace NJsonSchema
             }
             else
             {
-                foreach (var property in ReflectionCache.GetProperties(obj.GetType()).Where(p => p.CustomAttributes.JsonIgnoreAttribute == null))
+                foreach (var member in ReflectionCache.GetPropertiesAndFields(obj.GetType()).Where(p => p.CustomAttributes.JsonIgnoreAttribute == null))
                 {
-                    var pathSegment = property.GetName();
+                    var pathSegment = member.GetName();
                     if (pathSegment == firstSegment)
                     {
-                        var value = property.GetValue(obj);
+                        var value = member.GetValue(obj);
                         return ResolveReference(value, segments.Skip(1).ToList(), allSegments, checkedObjects);
                     }
                 }
